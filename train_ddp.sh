@@ -1,17 +1,21 @@
-TAG="20230802"
-exp_name="5m_$TAG"
+TAG="20230805"
+exp_name="${TAG}_5m"
+exp_name="${TAG}_5m"
 data_yaml_name="VOC_OCR_$TAG.yaml"
 cd /home/slk/cha/yolov5/yolov5
 
 gpu_num=3
+cpu_num=40
 batch_size_per_gpu=64
 batch_size=$(($gpu_num*$batch_size_per_gpu))
+# OMP_NUM_THREADS对这个项目影响不大，可加可不加
+# export OMP_NUM_THREADS=$(($cpu_num/$gpu_num/2))
 
 # python train.py --data VOC_OCR.yaml --cfg yolov5m.yaml --weights '' --batch-size 128
 python -m torch.distributed.launch --nproc_per_node $gpu_num train.py \
 --batch-size $batch_size \
 --data $data_yaml_name --cfg yolov5m.yaml \
---sync-bn --workers 8 --name ${exp_name} --epochs 150 \
+--sync-bn --workers 8 --name ${exp_name} --epochs 150
 # --weights '/home/bwz/project/ocr-gy/yolov5/yolov5/runs/train/5m_bg2/weights/best.pt' \
 # --resume
 
